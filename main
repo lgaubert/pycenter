@@ -7,10 +7,8 @@ import sqlite3
 import json
 import time
 
-url = 'https://www.guitarcenter.com/Used/Keyboards-MIDI.gc#pageName=used-page&N=1076+18185+1077&profileCountryCode=US&profileCurrencyCode=USD'
 with open('urls.json', 'r') as file:
     urls_data = json.load(file)
-
 
 conn = sqlite3.connect('pycenter.db')
 cursor = conn.cursor()
@@ -26,13 +24,7 @@ cursor.execute('''
 ''')
 
 
-"""
-Even if you pass in all the URL parameters with the scrapping URL, 
-The page needs to fully load before the desired results are given.
-To bypass this, will need to load in a real web browser to scrap
-For this project, Firefox will be used. Will need to install geckodriver
-https://github.com/mozilla/geckodriver/releases
-"""
+# Verify Geckodrivers are installed in local folder
 webdriver_service = Service('geckodriver')
 driver = webdriver.Firefox(service=webdriver_service)
 product_list = []
