@@ -2,11 +2,36 @@ from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from bs4 import BeautifulSoup
 from product import Product
+from email.message import EmailMessage
+import smtplib
 import datetime
 import sqlite3
 import json
+import os
 import time
 import schedule
+
+
+def email(new_product):
+
+    email_address = os.environ.get('EMAIL_ADDRESS')
+    email_password = os.environ.get('EMAIL_PASSWORD')
+
+    if email_address is None or email_password is None:
+        print("Error: Email credentials not found in environment variables.")
+        return
+
+    message = EmailMessage()
+    message['From'] = email_address
+    message['To'] = 'lgaubert@live.com'
+    message['Subject'] = 'New Product Added'
+    message.set_content(f"A new product has been added:\n\nName: {new_product.name}\nPrice: {new_product.price}\nLocation: {new_product.location}")
+
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+        smtp.starttls()
+        smtp.login(email_address, email_password)
+        smtp.send_message(message)
+
 
 
 def scrape():
@@ -71,6 +96,7 @@ def scrape():
         if existing_product is None:
             cursor.execute("INSERT INTO products (name, price, display_id, location, date_added) VALUES (?, ?, ?, ?, ?)",
                        (product.name, product.price, product.display_id, product.location, datetime.datetime.now()))
+            email(product)
 
 
     # close selenium and db connection
@@ -78,8 +104,10 @@ def scrape():
     conn.close()
     driver.quit()
 
+
+
 # schedule job. will not be executed until run_pending is ran
-schedule.every(5).minutes.do(scrape)
+schedule.every(1).minutes.do(scrape)
 
 # Checks for scheduled jo
 while True:
