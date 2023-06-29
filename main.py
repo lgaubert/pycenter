@@ -8,6 +8,7 @@ import json
 import time
 import schedule
 
+
 def scrape():
     with open('urls.json', 'r') as file:
         urls_data = json.load(file)
